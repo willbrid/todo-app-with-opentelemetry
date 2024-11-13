@@ -56,7 +56,7 @@ server {
 # $HOME/todolist/nginx_otel_module.conf
 NginxModuleEnabled ON;
 NginxModuleOtelSpanExporter otlp;
-NginxModuleOtelExporterEndpoint collector:4317; # Change ceci par votre url Otelcollector
+NginxModuleOtelExporterEndpoint collector:4317; # Changer ceci par votre url Otelcollector
 NginxModuleServiceName nginx_proxy;
 NginxModuleServiceNamespace nginx_proxy;
 NginxModuleServiceInstanceId nginx_proxy;
