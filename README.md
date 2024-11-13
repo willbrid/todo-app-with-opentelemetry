@@ -22,17 +22,17 @@ Cette installation est uniquement faite sur un système linux : **Ubuntu 22.04**
 1. Cloner le dépôt
 
 ```
-git clone https://github.com/willbrid/todo-app-with-instrumentation.git
+cd $HOME
 ```
 
 ```
-cd todo-app-with-instrumentation
+git clone https://github.com/willbrid/todo-app-with-opentelemetry.git
 ```
 
 2. Créer les repertoires du volume de la base de données
 
 ```
-mkdir -p $HOME/todolist/data && cd $HOME/todolist
+mkdir -p $HOME/todolist/data
 ```
 
 3. Créer les fichiers de configuration **nginx.conf**, **nginx_otel_module.conf** et **otel-collector-config.yaml**
@@ -85,10 +85,24 @@ service:
       exporters: [otlp]
 ```
 
+**NB :** Ne pas créer le fichier **otel-collector-config.yaml** si vous souhaitez utiliser un collecteur opentelemetry externe.
+
 4. Lancer l'application avec **docker compose**
 
 ```
+cd $HOME/todo-app-with-opentelemetry
+```
+
+- Lancement avec le collecteur opentelemetry interne
+
+```
 docker compose up --build --watch
+```
+
+- Lancement avec le collecteur opentelemetry externe
+
+```
+docker compose -f compose-with-external-otelcollector.yml up --build --watch
 ```
 
 ### Utilisation
