@@ -1,0 +1,53 @@
+services:
+  proxy:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile.nginx
+    depends_on:
+      - collector
+    networks:
+      - otel
+    ports:
+      - 80:80
+    volumes:
+      - '$HOME/todolist/nginx.conf:/etc/nginx/conf.d/default.conf'
+      - '$HOME/todolist/nginx_otel_module.conf:/etc/nginx/conf.d/opentelemetry_module.conf'
+
+  app:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    depends_on:
+      - collector
+    networks:
+      - otel
+    environment:
+      SQLITE_DB_LOCATION: /data/filedb
+      OTEL_TRACES_EXPORTER: "otlp"
+      OTEL_METRICS_EXPORTER: "otlp"
+      OTEL_LOGS_EXPORTER: "otlp"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://collector:4318" # Changer ceci par votre url Otelcollector
+      OTEL_NODE_RESOURCE_DETECTORS: "env,host,os"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
+      OTEL_SERVICE_NAME: "todo-list"
+    volumes:
+      - '$HOME/todolist/data:/data'
+
+networks: # Changer ceci si vous souhaitez configurer votre propre réseau docker-compose
+  otel:
+
+  # Pour les distro RedHat
+  # services:
+  #   collector:
+  #     ...
+  #     volumes:
+  #       - '$HOME/todolist/otel-collector-config.yaml:/etc/otel-collector-config.yaml:z'
+  #   proxy:
+  #     ... 
+  #     volumes:
+  #       - '$HOME/todolist/nginx.conf:/etc/nginx/conf.d/default.conf:z'
+  #       - '$HOME/todolist/nginx_otel_module.conf:/etc/nginx/conf.d/opentelemetry_module.conf:z'
+  #   app:
+  #     ...
+  #     volumes:
+  #       - '$HOME/todolist/data:/data:z'
