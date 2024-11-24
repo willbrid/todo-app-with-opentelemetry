@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  proxy-httpd:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile.httpd
+    networks:
+      - otel
+    ports:
+      - 8080:80
+    depends_on:
+      - app
+    volumes:
+      - '$HOME/todolist/httpd-reverse-proxy.conf:/usr/local/apache2/conf/sites/reverse-proxy.conf:z'
+      - '$HOME/todolist/httpd-data:/var/log/apache2:z'
+
+  app:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    networks:
+      - otel
+    environment:
+      SQLITE_DB_LOCATION: /data/filedb
+      OTEL_TRACES_EXPORTER: "otlp"
+      OTEL_METRICS_EXPORTER: "otlp"
+      OTEL_LOGS_EXPORTER: "otlp"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://192.168.56.21:4318"
+      OTEL_NODE_RESOURCE_DETECTORS: "env,host,os"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
+      OTEL_SERVICE_NAME: "todo-list"
+    volumes:
+    - '$HOME/todolist/data:/data:z'
+
+networks:
+  otel:
